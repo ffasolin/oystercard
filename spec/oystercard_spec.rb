@@ -23,13 +23,18 @@ describe Oystercard do
 
   describe '#touch_in' do
     it 'gives status touched in' do
+      subject.top_up(described_class::MIN_BALANCE)
       subject.touch_in
       expect(subject.status).to eq "Touched in."
+    end
+    it 'gives error when balance is insufficient' do
+      expect{ subject.touch_in }.to raise_error "Insufficient balance."
     end
   end
 
   describe '#touch_out' do
     it 'gives status touched out' do
+      subject.top_up(described_class::MIN_BALANCE)
       subject.touch_in
       subject.touch_out
       expect(subject.status).to eq "Touched out."
@@ -38,6 +43,7 @@ describe Oystercard do
 
   describe '#in_journey?' do
     it 'returns true when touched in' do
+      subject.top_up(described_class::MIN_BALANCE)
       subject.touch_in
       should be_in_journey
     end
