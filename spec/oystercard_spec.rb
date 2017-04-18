@@ -17,7 +17,8 @@ describe Oystercard do
   describe '#deduct' do
     it 'should deduct from balance' do
       subject.top_up(6)
-      expect(subject.deduct(3)).to eq 3
+      subject.touch_out
+      expect(subject.balance).to eq 5 
     end
   end
 
@@ -38,6 +39,10 @@ describe Oystercard do
       subject.touch_in
       subject.touch_out
       expect(subject.status).to eq "Touched out."
+    end
+
+    it 'deducts balance after #touch_out' do
+      expect { subject.touch_out }.to change{ subject.balance }.by(-1)
     end
   end
 
