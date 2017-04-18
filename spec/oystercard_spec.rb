@@ -1,7 +1,7 @@
 require 'oystercard'
 
 describe Oystercard do
-
+let(:station){double :station}
   it 'has a balance of zero' do
      expect(subject.balance).to eq(0)
   end
@@ -18,25 +18,39 @@ describe Oystercard do
     it 'should deduct from balance' do
       subject.top_up(6)
       subject.touch_out
-      expect(subject.balance).to eq 5 
+      expect(subject.balance).to eq 5
     end
   end
 
   describe '#touch_in' do
+    #let (:station){double(:station)}
+
     it 'gives status touched in' do
       subject.top_up(described_class::MIN_BALANCE)
-      subject.touch_in
+      subject.touch_in(station)
       expect(subject.status).to eq "Touched in."
     end
     it 'gives error when balance is insufficient' do
-      expect{ subject.touch_in }.to raise_error "Insufficient balance."
+      expect{ subject.touch_in(station) }.to raise_error "Insufficient balance."
+    end
+    it 'records point of entry' do
+      subject.top_up(1)
+      subject.touch_in(station)
+      expect(subject.station).to eq station
+    end
+
+    it 'forgets point of entry' do
+      subject.top_up(1)
+      subject.touch_in(station)
+      subject.touch_out
+      expect(subject.station).to eq nil
     end
   end
 
   describe '#touch_out' do
     it 'gives status touched out' do
       subject.top_up(described_class::MIN_BALANCE)
-      subject.touch_in
+      subject.touch_in(station)
       subject.touch_out
       expect(subject.status).to eq "Touched out."
     end
@@ -49,7 +63,7 @@ describe Oystercard do
   describe '#in_journey?' do
     it 'returns true when touched in' do
       subject.top_up(described_class::MIN_BALANCE)
-      subject.touch_in
+      subject.touch_in(station)
       should be_in_journey
     end
 
