@@ -6,5 +6,8 @@ describe Oystercard do
   end
   describe '#top_up' do
   	it { is_expected.to respond_to(:top_up).with(1).argument }
+    it 'raise error when over balance limit' do
+      expect{ subject.top_up(91) }.to raise_error "ERROR: balance over maximum limit of #{described_class::MAX_BALANCE}"
+    end
   end
 end
