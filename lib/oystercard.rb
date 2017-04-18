@@ -9,8 +9,13 @@ class Oystercard
   end
 
   def top_up(amount)
-    fail "ERROR: balance over maximum limit of #{MAX_BALANCE}" if @balance + amount > MAX_BALANCE
+    message = "ERROR: balance over maximum limit of #{MAX_BALANCE}"
+    fail message if @balance + amount > MAX_BALANCE
   	@balance = @balance + amount
+  end
+
+  def deduct(amount)
+    @balance = @balance - amount
   end
 
 end
