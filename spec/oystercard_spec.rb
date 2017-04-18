@@ -2,6 +2,19 @@ require 'oystercard'
 
 describe Oystercard do
 let(:station){double :station}
+
+  it 'has empty journey history' do
+    expect(subject.journey_history).to be_empty
+  end
+
+  it 'records journey' do
+    subject.top_up(1)
+    subject.touch_in(station)
+    subject.touch_out(station)
+    expect(subject.journey_history).to_not be_empty
+    p subject.journey_history
+  end
+
   it 'has a balance of zero' do
      expect(subject.balance).to eq(0)
   end
@@ -17,7 +30,7 @@ let(:station){double :station}
   describe '#deduct' do
     it 'should deduct from balance' do
       subject.top_up(6)
-      subject.touch_out
+      subject.touch_out(station)
       expect(subject.balance).to eq 5
     end
   end
@@ -36,14 +49,14 @@ let(:station){double :station}
     it 'records point of entry' do
       subject.top_up(1)
       subject.touch_in(station)
-      expect(subject.station).to eq station
+      expect(subject.entry_station).to eq station
     end
 
     it 'forgets point of entry' do
       subject.top_up(1)
       subject.touch_in(station)
-      subject.touch_out
-      expect(subject.station).to eq nil
+      subject.touch_out(station)
+      expect(subject.exit_station).to eq station
     end
   end
 
@@ -51,12 +64,12 @@ let(:station){double :station}
     it 'gives status touched out' do
       subject.top_up(described_class::MIN_BALANCE)
       subject.touch_in(station)
-      subject.touch_out
+      subject.touch_out(station)
       expect(subject.status).to eq "Touched out."
     end
 
     it 'deducts balance after #touch_out' do
-      expect { subject.touch_out }.to change{ subject.balance }.by(-1)
+      expect { subject.touch_out(station) }.to change{ subject.balance }.by(-1)
     end
   end
 
