@@ -14,7 +14,7 @@ class Oystercard
   def top_up(amount)
     message = "ERROR: balance over maximum limit of #{MAX_BALANCE}"
     fail message if @balance + amount > MAX_BALANCE
-  	@balance = @balance + amount
+  	@balance += amount
   end
 
   def touch_in(entry_station)
@@ -31,20 +31,17 @@ class Oystercard
   end
 
   def in_journey?
-    #return true if @status == "Touched in." # true and false not required because == is already compairing
-    #false
     @entry_station != nil
   end
 
   def journey_record
-    journey = {}
-    journey[entry_station] = exit_station
+    journey = { @entry_station => exit_station }
     @journey_history << journey
   end
 
   private
   def deduct(amount)
-    @balance = @balance - amount
+    @balance -= amount
   end
 
 end
