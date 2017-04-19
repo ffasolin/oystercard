@@ -58,13 +58,14 @@ describe Oystercard do
 
   it 'should remember the station it touched in at' do
     subject.top_up(5)
-    expect { subject.touch_in("Aldgate") }.to change{ subject.entry_station }.to "Aldgate"
+    subject.touch_in('Aldgate')
+    expect(subject.journey.entry_station).to eq "Aldgate"
   end
 
-  it "should set entry_station to nil at touch out" do
+  it "should set journey to nil at touch out" do
     subject.top_up(7)
     subject.touch_in(station)
-    expect{ subject.touch_out(station) }.to change{ subject.entry_station }.to be_nil
+    expect{ subject.touch_out(station) }.to change{ subject.journey }.to be_nil
   end
 
   it "should record one journey from Fulham to Aldgate" do

@@ -1,14 +1,15 @@
-require "station"
+require_relative 'journey'
+require_relative 'journeylog'
 
 class Oystercard
-  attr_reader :balance, :entry_station, :history
+  attr_reader :balance, :history, :journey
   MAXIMUM_BALANCE = 90
   MINIMUM_FARE = 1
 
   def initialize
     @balance = 0
-    @entry_station = nil
     @history = []
+    @journey = nil
   end
 
   def top_up(x)
@@ -16,20 +17,29 @@ class Oystercard
     @balance += x
   end
 
-  def in_journey?
-    @entry_station != nil
-  end
 
   def touch_in(entry_station)
+    #touch_out(nil) if in_journey?
     raise "Min balance is £1" if @balance < MINIMUM_FARE
-    @entry_station = entry_station
+    #@journey = Journey.new
+    #@journey.journey_start(entry_station)
+    @journey = JourneyLog.new
+    @journey.start(entry_station)
+
   end
 
   def touch_out(exit_station)
-    deduct(MINIMUM_FARE)
-    history.push ({ @entry_station => exit_station })
-    @entry_station = nil
+    #touch_in(nil) if !in_journey?
+    history.push ({ @journey.journey_class.entry_station => exit_station })
+    #@journey.journey_end(exit_station)
+    @journey.finish(exit_station)
+    deduct(@journey.journey_class.fare)
+    @journey.journey_class = nil
   end
+
+  #def in_journey?
+  #  @journey.journey_class != nil
+  #end
 
   private
 
