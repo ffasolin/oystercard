@@ -1,47 +1,51 @@
+require_relative 'journey'
+require_relative 'journeylog'
+
 class Oystercard
-
-  MAX_BALANCE = 90
-  MIN_BALANCE = 1
-
-  attr_reader :balance, :status, :entry_station, :exit_station, :journey_history
+  attr_reader :balance, :history, :journey
+  MAXIMUM_BALANCE = 90
+  MINIMUM_FARE = 1
 
   def initialize
-  	@balance = 0
-    @status = "New card."
-    @journey_history = []
+    @balance = 0
+    @history = []
+    @journey = nil
   end
 
-  def top_up(amount)
-    message = "ERROR: balance over maximum limit of #{MAX_BALANCE}"
-    fail message if @balance + amount > MAX_BALANCE
-  	@balance += amount
+  def top_up(value)
+    message = "card limit exceeded: Maximum Balance is £#{MAXIMUM_BALANCE}"
+    raise message if value + balance > MAXIMUM_BALANCE
+    @balance += value
   end
+
 
   def touch_in(entry_station)
-    fail "Insufficient balance." if @balance < MIN_BALANCE
-    @status = "Touched in."
-    @entry_station = entry_station
+    #touch_out(nil) if in_journey?
+    raise "Min balance is £1" if @balance < MINIMUM_FARE
+    #@journey = Journey.new
+    #@journey.journey_start(entry_station)
+    @journey = JourneyLog.new
+    @journey.start(entry_station)
+
   end
 
   def touch_out(exit_station)
-    deduct(1)
-    @status = "Touched out."
-    @exit_station = exit_station
-    journey_record
+    #touch_in(nil) if !in_journey?
+    history.push ({ @journey.journey_class.entry_station => exit_station })
+    #@journey.journey_end(exit_station)
+    @journey.finish(exit_station)
+    deduct(@journey.journey_class.fare)
+    @journey.journey_class = nil
   end
 
-  def in_journey?
-    @entry_station != nil
-  end
-
-  def journey_record
-    journey = { @entry_station => exit_station }
-    @journey_history << journey
-  end
+  #def in_journey?
+  #  @journey.journey_class != nil
+  #end
 
   private
-  def deduct(amount)
-    @balance -= amount
+
+  def deduct(x)
+    @balance -= x
   end
 
 end
