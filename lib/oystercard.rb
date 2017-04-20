@@ -12,10 +12,9 @@ class Oystercard
     @journey = nil
   end
 
-  def top_up(value)
-    message = "card limit exceeded: Maximum Balance is £#{MAXIMUM_BALANCE}"
-    raise message if value + balance > MAXIMUM_BALANCE
-    @balance += value
+  def top_up(x)
+    raise "card limit exceeded: Maximum Balance is £#{MAXIMUM_BALANCE}" if x+balance > MAXIMUM_BALANCE
+    @balance += x
   end
 
 

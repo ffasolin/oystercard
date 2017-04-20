@@ -1,88 +1,78 @@
-require 'oystercard'
+require "./lib/oystercard"
+
+
 
 describe Oystercard do
-let(:station){double :station}
+  let(:station) {double}
 
-  it 'has empty journey history' do
-    expect(subject.journey_history).to be_empty
+  it 'has a balance' do
+    expect(subject).to respond_to :balance
   end
 
-  it 'records journey' do
-    subject.top_up(1)
+  it 'has a blank history' do
+    expect(subject.history).to eq([])
+  end
+
+  it 'begins at a balance of 0' do
+    expect(subject.balance).to eq(0)
+  end
+
+  it 'adds 10 to the balance' do
+    expect(subject.top_up(10)).to eq(10)
+  end
+
+  it 'adds 10 to the balance of 10' do
+    subject.top_up(10)
+    expect(subject.top_up(10)).to eq(20)
+  end
+
+  it 'should raise an error if 100 is added' do
+    expect{ subject.top_up(100) }.to raise_error("card limit exceeded: Maximum Balance is £#{Oystercard::MAXIMUM_BALANCE}")
+  end
+
+  it 'checks the journey status' do
+    expect(subject).to respond_to :in_journey?
+  end
+
+  it 'changes the journey status to true' do
+    subject.top_up(5)
+    expect{subject.touch_in(station)}.to change{subject.in_journey?}.from(false).to(true)
+  end
+
+  it 'changes the journey status to false' do
+    subject.top_up(5)
     subject.touch_in(station)
-    subject.touch_out(station)
-    expect(subject.journey_history).to_not be_empty
-    p subject.journey_history
+    expect{ subject.touch_out(station) }.to change{ subject.in_journey? }.from(true).to(false)
   end
 
-  it 'has a balance of zero' do
-     expect(subject.balance).to eq(0)
+
+  it 'should raise an error if we deduct when balance is less than £1' do
+    expect{ subject.touch_in(station) }.to raise_error("Min balance is £#{Oystercard::MINIMUM_FARE}")
   end
 
-  describe '#top_up' do
-  	it { is_expected.to respond_to(:top_up).with(1).argument }
-
-    it 'raise error when over balance limit' do
-      expect{ subject.top_up(91) }.to raise_error "ERROR: balance over maximum limit of #{described_class::MAX_BALANCE}"
-    end
+  it 'should deduct £1 on touching out' do
+    subject.top_up(5)
+    subject.touch_in(station)
+    expect{ subject.touch_out(station) }.to change{ subject.balance }.from(5).to(4)
   end
 
-  describe '#deduct' do
-    it 'should deduct from balance' do
-      subject.top_up(6)
-      subject.touch_out(station)
-      expect(subject.balance).to eq 5
-    end
+  it 'should remember the station it touched in at' do
+    subject.top_up(5)
+    subject.touch_in('Aldgate')
+    expect(subject.journey.entry_station).to eq "Aldgate"
   end
 
-  describe '#touch_in' do
-    #let (:station){double(:station)}
-
-    it 'gives status touched in' do
-      subject.top_up(described_class::MIN_BALANCE)
-      subject.touch_in(station)
-      expect(subject.status).to eq "Touched in."
-    end
-    it 'gives error when balance is insufficient' do
-      expect{ subject.touch_in(station) }.to raise_error "Insufficient balance."
-    end
-    it 'records point of entry' do
-      subject.top_up(1)
-      subject.touch_in(station)
-      expect(subject.entry_station).to eq station
-    end
-
-    it 'forgets point of entry' do
-      subject.top_up(1)
-      subject.touch_in(station)
-      subject.touch_out(station)
-      expect(subject.exit_station).to eq station
-    end
+  it "should set journey to nil at touch out" do
+    subject.top_up(7)
+    subject.touch_in(station)
+    expect{ subject.touch_out(station) }.to change{ subject.journey }.to be_nil
   end
 
-  describe '#touch_out' do
-    it 'gives status touched out' do
-      subject.top_up(described_class::MIN_BALANCE)
-      subject.touch_in(station)
-      subject.touch_out(station)
-      expect(subject.status).to eq "Touched out."
-    end
-
-    it 'deducts balance after #touch_out' do
-      expect { subject.touch_out(station) }.to change{ subject.balance }.by(-1)
-    end
-  end
-
-  describe '#in_journey?' do
-    it 'returns true when touched in' do
-      subject.top_up(described_class::MIN_BALANCE)
-      subject.touch_in(station)
-      should be_in_journey
-    end
-
-    it 'returns false when touched out' do
-      expect(subject.in_journey?).to eq false
-    end
+  it "should record one journey from Fulham to Aldgate" do
+    subject.top_up(7)
+    subject.touch_in("Fulham")
+    subject.touch_out("Aldgate")
+    expect(subject.history).to eq ["Fulham" => "Aldgate"]
   end
 
 end

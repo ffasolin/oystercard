@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 --color
 --require spec_helper
 --format documentation
+||||||| merged common ancestors
+=======
+--color
+--require spec_helper
+>>>>>>> 0a004d0de97aec8406d621043c5e5b466e7df17d
