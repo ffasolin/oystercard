@@ -1,7 +1,7 @@
 class JourneyLog
   attr_reader :current_journey, :oystercard
 
-  def initialize (current_journey = Journey.new)
+  def initialize(current_journey = Journey.new)
     @current_journey = current_journey
   end
 

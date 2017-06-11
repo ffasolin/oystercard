@@ -13,7 +13,7 @@ class Oystercard
   end
 
   def top_up(amount)
-    raise "Limit exceeded: Maximum Balance is £#{MAXIMUM_BALANCE}" if amount+balance > MAXIMUM_BALANCE
+    raise "Limit exceeded £#{MAXIMUM_BALANCE}" if amount + balance > MAXIMUM_BALANCE
     @balance += amount
   end
 
@@ -24,14 +24,14 @@ class Oystercard
   end
 
   def touch_out(exit_station)
-    history.push ({ @journey.current_journey.entry_station => exit_station })
+    history.push({ @journey.current_journey.entry_station => exit_station })
     @journey.finish(exit_station)
     deduct(@journey.current_journey.fare)
     @journey_status = false
   end
 
   def in_journey?
-   !@journey_status.nil?
+    !@journey_status.nil?
   end
 
   private
