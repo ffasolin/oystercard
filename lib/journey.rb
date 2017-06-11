@@ -1,4 +1,3 @@
-# responsible for starting a journey, finishing a journey, calculating the fare of a journey, and returning whether or not the journey is complete.
 require_relative 'oystercard'
 
 class Journey
@@ -30,6 +29,4 @@ attr_reader :entry_station, :exit_station
       return 6
     end
   end
-
-
 end

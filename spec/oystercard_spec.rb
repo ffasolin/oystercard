@@ -1,9 +1,8 @@
-require "./lib/oystercard"
-
-
+require './lib/oystercard'
+require 'pry'
 
 describe Oystercard do
-  let(:station) {double}
+  let(:station) { double :station }
 
   it 'has a balance' do
     expect(subject).to respond_to :balance
@@ -26,8 +25,8 @@ describe Oystercard do
     expect(subject.top_up(10)).to eq(20)
   end
 
-  it 'should raise an error if 100 is added' do
-    expect{ subject.top_up(100) }.to raise_error("card limit exceeded: Maximum Balance is £#{Oystercard::MAXIMUM_BALANCE}")
+  it 'raises an error if 100 is added' do
+    expect{ subject.top_up(100) }.to raise_error("Limit exceeded: Maximum Balance is £#{Oystercard::MAXIMUM_BALANCE}")
   end
 
   it 'checks the journey status' do
@@ -42,37 +41,36 @@ describe Oystercard do
   it 'changes the journey status to false' do
     subject.top_up(5)
     subject.touch_in(station)
-    expect{ subject.touch_out(station) }.to change{ subject.in_journey? }.from(true).to(false)
+    expect{ subject.touch_out(station) }.to change{ subject.journey_status }.from(true).to(false)
   end
 
 
-  it 'should raise an error if we deduct when balance is less than £1' do
+  it 'raises an error if we deduct when balance is less than £1' do
     expect{ subject.touch_in(station) }.to raise_error("Min balance is £#{Oystercard::MINIMUM_FARE}")
   end
 
-  it 'should deduct £1 on touching out' do
+  it 'deducts £1 on touching out' do
     subject.top_up(5)
     subject.touch_in(station)
     expect{ subject.touch_out(station) }.to change{ subject.balance }.from(5).to(4)
   end
 
-  it 'should remember the station it touched in at' do
+  it 'remembers the station it touched in at' do
     subject.top_up(5)
     subject.touch_in('Aldgate')
-    expect(subject.journey.entry_station).to eq "Aldgate"
+    expect(subject.journey.current_journey.entry_station).to eq 'Aldgate'
   end
 
-  it "should set journey to nil at touch out" do
+  it 'sets journey to nil at touch out' do
     subject.top_up(7)
     subject.touch_in(station)
-    expect{ subject.touch_out(station) }.to change{ subject.journey }.to be_nil
+    expect{ subject.touch_out(station) }.to change{ subject.journey_status }.to be(false)
   end
 
-  it "should record one journey from Fulham to Aldgate" do
+  it 'records one journey from Fulham to Aldgate' do
     subject.top_up(7)
-    subject.touch_in("Fulham")
-    subject.touch_out("Aldgate")
-    expect(subject.history).to eq ["Fulham" => "Aldgate"]
+    subject.touch_in('Fulham')
+    subject.touch_out('Aldgate')
+    expect(subject.history).to eq ['Fulham' => 'Aldgate']
   end
-
 end
