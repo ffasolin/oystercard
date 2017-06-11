@@ -1,3 +1,3 @@
 # Oystercard
 
-Week 2 Challange
+A program modelling the functionality of the TFL Oystercard system.
