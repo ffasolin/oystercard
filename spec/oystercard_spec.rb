@@ -1,5 +1,4 @@
 require './lib/oystercard'
-require 'pry'
 
 describe Oystercard do
   let(:station) { double :station }
